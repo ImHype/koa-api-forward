@@ -1,5 +1,4 @@
 const url = require('url');
-const {ServerResponse} = require('http');
 const createProxyServer = require('./lib/createProxyServer');
 const createProxyResponse = require('./lib/createProxyResponse');
 const defaultTimeoutHook = require('./lib/defaultTimeoutHook');
@@ -12,7 +11,7 @@ function startProxy({
     const proxy = createProxyServer({host, specialHeader});
 
     return function*(next) {
-        const {res, bodyBuffers} = createProxyResponse(req);
+        const {res, bodyBuffers} = createProxyResponse(this.req);
 
         proxy.web(this.req, res, {
             target: scheme + '://' + hostname
