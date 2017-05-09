@@ -1,0 +1,19 @@
+{
+  "name": "koa-api-forward",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ImHype/koa-api-forward.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ImHype/koa-api-forward/issues"
+  },
+  "homepage": "https://github.com/ImHype/koa-api-forward#readme"
+}

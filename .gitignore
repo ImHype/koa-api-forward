@@ -1,0 +1,11 @@
+.DS_store
+.idea/
+.pm2/
+/logs/
+node_modules/
+*/*/node_modules/
+npm-debug.log*
+
+views/**
+public/dist/
+**/.happypack
