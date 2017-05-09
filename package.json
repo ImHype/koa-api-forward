@@ -1,6 +1,6 @@
 {
   "name": "koa-api-forward",
-  "version": "1.0.0",
+  "version": "1.0.0-0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/ImHype/koa-api-forward/issues"
   },
-  "homepage": "https://github.com/ImHype/koa-api-forward#readme"
+  "homepage": "https://github.com/ImHype/koa-api-forward#readme",
+  "dependencies": {
+    "http-proxy": "^1.16.2"
+  }
 }
