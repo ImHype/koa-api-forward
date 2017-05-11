@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ./"
   },
   "repository": {
     "type": "git",
@@ -18,5 +19,8 @@
   "homepage": "https://github.com/ImHype/koa-api-forward#readme",
   "dependencies": {
     "http-proxy": "^1.16.2"
+  },
+  "devDependencies": {
+    "eslint": "^3.19.0"
   }
 }

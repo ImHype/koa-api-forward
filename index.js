@@ -1,14 +1,9 @@
-const url = require('url');
 const createProxyServer = require('./lib/createProxyServer');
 const createProxyResponse = require('./lib/createProxyResponse');
 const defaultTimeoutHook = require('./lib/defaultTimeoutHook');
 
 class ApiForward {
     constructor(options = {}) {
-        if (!this instanceof ApiForward) {
-            new ApiForward(options);
-        }
-
         const {host, specialHeader} = options;
 
         this.proxy = createProxyServer({host, specialHeader});
@@ -37,7 +32,6 @@ class ApiForward {
                     setTimeout(reject, timeout);
                 });
             } catch (e) {
-                console.log(e)
                 timeoutHook.call(this, e);
                 return yield next;
             }
@@ -51,7 +45,7 @@ class ApiForward {
             }
 
             yield next;
-        }
+        };
     }
 }
 
