@@ -3,40 +3,56 @@ const createProxyServer = require('./lib/createProxyServer');
 const createProxyResponse = require('./lib/createProxyResponse');
 const defaultTimeoutHook = require('./lib/defaultTimeoutHook');
 
-function startProxy({
-                       host = '127.0.0.1', scheme = 'http',
-                       specialHeader = 'specialHeader', hostname,
-                       timeout = 1500, timeoutHook = defaultTimeoutHook
-                   }) {
-    const proxy = createProxyServer({host, specialHeader});
+class ApiForward {
+    constructor(options = {}) {
+        if (!this instanceof ApiForward) {
+            new ApiForward(options);
+        }
 
-    return function*(next) {
-        const {res, bodyBuffers} = createProxyResponse(this.req);
+        const {host, specialHeader} = options;
 
-        proxy.web(this.req, res, {
-            target: scheme + '://' + hostname
-        });
+        this.proxy = createProxyServer({host, specialHeader});
+    }
 
-        try {
-            yield new Promise((resolve, reject) => {
-                res.once('proxyed', () => resolve());
-                setTimeout(reject, timeout);
+    on(...args) {
+        this.proxy.on(...args);
+    }
+
+    middleware({
+        scheme = 'http', hostname = 'localhost',
+        timeout = 1500, timeoutHook = defaultTimeoutHook
+    }) {
+        const proxy = this.proxy;
+
+        return function*(next) {
+            const {res, bodyBuffers} = createProxyResponse(this.req);
+            
+            proxy.web(this.req, res, {
+                target: scheme + '://' + hostname
             });
-        } catch (e) {
-            timeoutHook.call(this, e);
-            return yield next;
+
+            try {
+                yield new Promise((resolve, reject) => {
+                    res.once('proxyed', () => resolve());
+                    setTimeout(reject, timeout);
+                });
+            } catch (e) {
+                console.log(e)
+                timeoutHook.call(this, e);
+                return yield next;
+            }
+
+            this.status = res.statusCode;
+
+            this.set(res._headers);
+
+            if (this.status === 200) {
+                this._proxyResponse = Buffer.concat(bodyBuffers).toString('utf-8');
+            }
+
+            yield next;
         }
-
-        this.status = res.statusCode;
-
-        this.set(res._headers);
-
-        if (this.status === 200) {
-            this._proxyResponse = Buffer.concat(bodyBuffers).toString('utf-8');
-        }
-
-        yield next;
     }
 }
 
-module.exports = startProxy;
+module.exports = ApiForward;
