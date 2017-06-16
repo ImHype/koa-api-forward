@@ -1,6 +1,7 @@
 const createProxyServer = require('./lib/createProxyServer');
 const createProxyResponse = require('./lib/createProxyResponse');
 const defaultTimeoutHook = require('./lib/defaultTimeoutHook');
+const defaultSetHeaderErrorHook = require('./lib/defaultSetHeaderErrorHook');
 
 class ApiForward {
     constructor(options = {}) {
@@ -15,7 +16,8 @@ class ApiForward {
 
     middleware({
         scheme = 'http', hostname = 'localhost',
-        timeout = 1500, timeoutHook = defaultTimeoutHook
+        timeout = 1500, timeoutHook = defaultTimeoutHook,
+        setHeaderErrorHook = defaultSetHeaderErrorHook
     }) {
         const proxy = this.proxy;
 
@@ -38,7 +40,15 @@ class ApiForward {
 
             this.status = res.statusCode || 404;
 
-            this.set(res._headers);
+            for(let key in res._headers) {
+                try {
+                    this.set({
+                        [key]: res._headers[key]
+                    });
+                } catch(e) {
+                    setHeaderErrorHook.call(this, e);
+                }
+            }
             
             if (Number(String(this.status).charAt(0)) < 4) {
                 this._proxyResponse = Buffer.concat(bodyBuffers).toString('utf-8');
