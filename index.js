@@ -1,7 +1,7 @@
 const createProxyServer = require('./lib/createProxyServer');
 const createProxyResponse = require('./lib/createProxyResponse');
-const defaultTimeoutHook = require('./lib/defaultTimeoutHook');
-const defaultSetHeaderErrorHook = require('./lib/defaultSetHeaderErrorHook');
+const defaultTimeoutHook = require('./lib/hooks/defaultTimeoutHook');
+const defaultSetHeaderErrorHook = require('./lib/hooks/defaultSetHeaderErrorHook');
 
 class ApiForward {
     constructor(options = {}) {
