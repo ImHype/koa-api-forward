@@ -4,9 +4,9 @@ const defaultTimeoutHook = require('./lib/defaultTimeoutHook');
 
 class ApiForward {
     constructor(options = {}) {
-        const {host, specialHeader} = options;
+        const {host, specialHeader, secure = false} = options;
 
-        this.proxy = createProxyServer({host, specialHeader});
+        this.proxy = createProxyServer({host, specialHeader, secure});
     }
 
     on(...args) {
@@ -36,11 +36,11 @@ class ApiForward {
                 return yield next;
             }
 
-            this.status = res.statusCode;
+            this.status = res.statusCode || 404;
 
             this.set(res._headers);
-
-            if (this.status === 200) {
+            
+            if (Number(String(this.status).charAt(0)) < 4) {
                 this._proxyResponse = Buffer.concat(bodyBuffers).toString('utf-8');
             }
 
