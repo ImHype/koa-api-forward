@@ -17,7 +17,7 @@ class ApiForward {
 
     middleware({
         scheme = 'http', hostname = 'localhost',
-        timeout = 1500, timeoutHook = defaultTimeoutHook,
+        timeout = 10000, timeoutHook = defaultTimeoutHook,
         setHeaderErrorHook = defaultSetHeaderErrorHook
     }) {
         const proxy = this.proxy;
@@ -55,6 +55,7 @@ class ApiForward {
                 this._proxyResponse = yield bodyResolver(Buffer.concat(bodyBuffers), res._headers['content-encoding']);
             }
 
+            console.log(this._proxyResponse)
             yield next;
         };
     }
