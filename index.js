@@ -1,3 +1,4 @@
+const bodyResolver = require('./lib/bodyResolver');
 const createProxyServer = require('./lib/createProxyServer');
 const createProxyResponse = require('./lib/createProxyResponse');
 const defaultTimeoutHook = require('./lib/hooks/defaultTimeoutHook');
@@ -40,7 +41,7 @@ class ApiForward {
 
             this.status = res.statusCode || 404;
 
-            for(let key in res._headers) {
+            Object.keys(res._headers || {}).forEach(key => {
                 try {
                     this.set({
                         [key]: res._headers[key]
@@ -48,10 +49,12 @@ class ApiForward {
                 } catch(e) {
                     setHeaderErrorHook.call(this, e);
                 }
-            }
-            
+            });
+        
+            this.set({'content-encoding': void 0});
+
             if (Number(String(this.status).charAt(0)) < 4) {
-                this._proxyResponse = Buffer.concat(bodyBuffers).toString('utf-8');
+                this._proxyResponse = yield bodyResolver(Buffer.concat(bodyBuffers), res._headers['content-encoding']);
             }
 
             yield next;
