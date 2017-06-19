@@ -43,15 +43,13 @@ class ApiForward {
 
             Object.keys(res._headers || {}).forEach(key => {
                 try {
-                    this.set({
-                        [key]: res._headers[key]
-                    });
+                    this.set(key, res._headers[key]);
                 } catch(e) {
                     setHeaderErrorHook.call(this, e);
                 }
             });
-        
-            this.set({'content-encoding': void 0});
+
+            this.remove('content-encoding');
 
             if (Number(String(this.status).charAt(0)) < 4) {
                 this._proxyResponse = yield bodyResolver(Buffer.concat(bodyBuffers), res._headers['content-encoding']);
