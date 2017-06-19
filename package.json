@@ -18,7 +18,8 @@
   },
   "homepage": "https://github.com/ImHype/koa-api-forward#readme",
   "dependencies": {
-    "http-proxy": "^1.16.2"
+    "http-proxy": "^1.16.2",
+    "pify": "^3.0.0"
   },
   "devDependencies": {
     "eslint": "^3.19.0"
