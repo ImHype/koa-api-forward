@@ -1,8 +1,11 @@
 const bodyResolver = require('./lib/bodyResolver');
 const createProxyServer = require('./lib/createProxyServer');
 const createProxyResponse = require('./lib/createProxyResponse');
-const defaultTimeoutHook = require('./lib/hooks/defaultTimeoutHook');
-const defaultSetHeaderErrorHook = require('./lib/hooks/defaultSetHeaderErrorHook');
+const {
+    defaultTimeoutHook, defaultPreForwardHook, 
+    defaultAfterForwardHook, defaultSetHeaderErrorHook, 
+    defaultSetProxyResponseHook
+} = require('./lib/hooks');
 
 class ApiForward {
     constructor(options = {}) {
@@ -17,14 +20,21 @@ class ApiForward {
 
     middleware({
         scheme = 'http', hostname = 'localhost',
-        timeout = 10000, timeoutHook = defaultTimeoutHook,
-        setHeaderErrorHook = defaultSetHeaderErrorHook
+        timeout = 10000, 
+        
+        timeoutHook = defaultTimeoutHook,
+        preForwardHook = defaultPreForwardHook,
+        afterForwardHook = defaultAfterForwardHook,
+        setHeaderErrorHook = defaultSetHeaderErrorHook,
+        setProxyResponseHook = defaultSetProxyResponseHook
     }) {
         const proxy = this.proxy;
 
         return function*(next) {
             const {res, bodyBuffers} = createProxyResponse(this.req);
             
+            preForwardHook.call(this);
+
             proxy.web(this.req, res, {
                 target: scheme + '://' + hostname
             });
@@ -38,6 +48,8 @@ class ApiForward {
                 timeoutHook.call(this, e);
                 return yield next;
             }
+
+            afterForwardHook.call(this);
 
             this.status = res.statusCode || 404;
 
@@ -55,7 +67,8 @@ class ApiForward {
                 this._proxyResponse = yield bodyResolver(Buffer.concat(bodyBuffers), res._headers['content-encoding']);
             }
 
-            console.log(this._proxyResponse)
+            setProxyResponseHook.call(this);
+
             yield next;
         };
     }
