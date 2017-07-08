@@ -9,9 +9,9 @@ const {
 
 class ApiForward {
     constructor(options = {}) {
-        const {host, specialHeader, secure = false} = options;
+        const {host, specialHeader, secure = false, agent = false} = options;
 
-        this.proxy = createProxyServer({host, specialHeader, secure});
+        this.proxy = createProxyServer({host, specialHeader, secure, agent});
     }
 
     on(...args) {
