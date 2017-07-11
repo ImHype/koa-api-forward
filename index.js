@@ -2,16 +2,16 @@ const bodyResolver = require('./lib/bodyResolver');
 const createProxyServer = require('./lib/createProxyServer');
 const createProxyResponse = require('./lib/createProxyResponse');
 const {
-    defaultTimeoutHook, defaultPreForwardHook, 
+    defaultPreForwardHook, 
     defaultAfterForwardHook, defaultSetHeaderErrorHook, 
     defaultSetProxyResponseHook
 } = require('./lib/hooks');
 
 class ApiForward {
     constructor(options = {}) {
-        const {host, specialHeader, secure = false, agent = false} = options;
+        const {host, specialHeader, secure = false, agent = false, proxyTimeout = 3000} = options;
 
-        this.proxy = createProxyServer({host, specialHeader, secure, agent});
+        this.proxy = createProxyServer({host, specialHeader, secure, agent, proxyTimeout});
     }
 
     on(...args) {
@@ -20,9 +20,6 @@ class ApiForward {
 
     middleware({
         scheme = 'http', hostname = 'localhost',
-        timeout = 10000, 
-        
-        timeoutHook = defaultTimeoutHook,
         preForwardHook = defaultPreForwardHook,
         afterForwardHook = defaultAfterForwardHook,
         setHeaderErrorHook = defaultSetHeaderErrorHook,
@@ -40,13 +37,11 @@ class ApiForward {
             });
 
             try {
-                yield new Promise((resolve, reject) => {
+                yield new Promise((resolve) => {
                     res.once('proxyed', () => resolve());
-                    setTimeout(reject, timeout);
                 });
             } catch (e) {
-                timeoutHook.call(this, e);
-                return yield next;
+                return;
             }
 
             afterForwardHook.call(this);
